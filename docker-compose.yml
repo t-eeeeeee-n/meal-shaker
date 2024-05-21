@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    container_name: "meal-shaker-db-container"
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+    ports:
+      - ${DB_PORT}
+    command: ${DB_CMD}
+#  db:
+#    container_name: "meal-shaker-db-container"
+#    build:
+#      context: .
+#      dockerfile: ./docker/db/Dockerfile
+#    restart: always
+#    env_file:
+#      - .env
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - ./docker/db/init:/docker-entrypoint-initdb.d
+#    #      - ./docker/db/data:/var/lib/postgresql/data
+#    environment:
+#      POSTGRES_USER: ${DB_USER}
+#      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  #  backend:
+  #    build:
+  #      context: ./backend
+  #      dockerfile: Dockerfile
+  #
+  #    env_file:
+  #      - .env
+  #    working_dir: /app
+  #    volumes:
+  #      - "./backend:/app"
+  #
+  #    ports:
+  #      - "${BACKEND_PORT:-7001}:${BACKEND_PORT:-7001}"
+  #
+  #    command: poetry run uvicorn main:app --host 0.0.0.0 --port ${BACKEND_PORT:-7001}
+
+  frontend:
+    container_name: "meal-shaker-frontend-container"
+    image: "meal-shaker-frontend-image"
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile.local
+    working_dir: /app
+    volumes:
+      - "./frontend:/app"
+    ports:
+      - ${NEXT_PORT}
+    tty: true
+    env_file:
+      - .env
+    environment:
+      - WATCHPACK_POLLING=true
+    command: ${NEXT_CMD}
+    depends_on:
+      - "db"
