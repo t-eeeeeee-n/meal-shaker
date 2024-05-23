@@ -13,25 +13,11 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./docker/db/init:/docker-entrypoint-initdb.d
-    ports:
+#    ports:
+#      - ${DB_PORT}:${DB_PORT}
+    expose:
       - ${DB_PORT}
     command: ${DB_CMD}
-#  db:
-#    container_name: "meal-shaker-db-container"
-#    build:
-#      context: .
-#      dockerfile: ./docker/db/Dockerfile
-#    restart: always
-#    env_file:
-#      - .env
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - ./docker/db/init:/docker-entrypoint-initdb.d
-#    #      - ./docker/db/data:/var/lib/postgresql/data
-#    environment:
-#      POSTGRES_USER: ${DB_USER}
-#      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
   backend:
     container_name: "meal-shaker-backend-container"
@@ -44,8 +30,7 @@ services:
     volumes:
       - "./backend/src:/app/src"
     ports:
-      - "${BACKEND_PORT:-7001}:${BACKEND_PORT:-7001}"
-#    command: poetry run uvicorn main:app --host 0.0.0.0 --port ${BACKEND_PORT:-7001}
+      - ${BACKEND_PORT}:${BACKEND_PORT}
     entrypoint: ["/app/entrypoint.sh"]
     depends_on:
       - db
@@ -60,12 +45,28 @@ services:
     volumes:
       - "./frontend:/app"
     ports:
-      - ${NEXT_PORT}
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
     tty: true
     env_file:
       - .env
     environment:
       - WATCHPACK_POLLING=true
-    command: ${NEXT_CMD}
+    command: ${FRONTEND_CMD}
     depends_on:
       - "db"
+
+
+#  https-portal:
+#    image: steveltn/https-portal:1
+#    ports:
+#      - '80:80'
+#      - '443:443'
+#    environment:
+#      DOMAINS: ${HTTP_PORTAL_DOMAIN}
+#      STAGE: ${STAGE} # Don't use production until staging works
+#      CUSTOM_NGINX_DOMAIN_TLD_CONFIG_BLOCK: ${CUSTOM_NGINX_DOMAIN_TLD_CONFIG_BLOCK}
+#    volumes:
+#      - https-portal-data:/var/lib/https-portal
+#
+#volumes:
+#  https-portal-data:
