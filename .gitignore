@@ -82,3 +82,10 @@ fabric.properties
 *.db-journal
 *.db-shm
 *.db-wal
+memo.txt
+
+# Ignore Python cache directories
+__pycache__/
+*.py[cod]
+
+.git__

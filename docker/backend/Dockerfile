@@ -29,7 +29,7 @@ RUN poetry config virtualenvs.create false
 COPY ./backend/pyproject.toml ./backend/poetry.lock ./
 
 # 依存関係をインストール
-RUN poetry install --no-dev
+RUN poetry install
 
 # アプリケーションのソースコードをコピー
 COPY ./backend/src /app/src

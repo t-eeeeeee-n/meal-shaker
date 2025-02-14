@@ -21,7 +21,6 @@ import requests
 #             raise HTTPException(status_code=500, detail=error_message)
 
 async def list_entries(area: str, keyword: str):
-    print(area, keyword)
     # Get area info
     area_info = await get_area_info(area)
     if not area_info or len(area_info) == 0:
